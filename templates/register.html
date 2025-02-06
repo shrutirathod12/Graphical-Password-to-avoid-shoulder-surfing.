@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    
+    <style>
+        /* Body styling */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #0e1a2b;
+            color: #ffffff;
+            background-image: url('{{ url_for("static", filename="background.png") }}');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Form container styling */
+        .form-container {
+            background-color: rgba(14, 26, 43, 0.9);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px #1e90ff;
+            width: 600px;
+            text-align: center;
+        }
+
+        /* Header styling */
+        .form-container h2 {
+            font-size: 28px;
+            color: #1e90ff;
+            margin-bottom: 20px;
+        }
+
+        /* Form label styling */
+        label {
+            display: block;
+            text-align: left;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #c0c0c0;
+        }
+
+        /* Input and select styling */
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"],
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1b2a3d;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        /* Submit button styling */
+        button[type="submit"] {
+            margin-top: 20px;
+            padding: 10px 20px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            background-color: #1e90ff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #007acc;
+        }
+
+        /* Help Button Styling */
+        .help-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .help-button:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal Styling */
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #333;
+            padding: 30px;
+            border-radius: 8px;
+            width: 60%;
+            color: white;
+            text-align: left;
+        }
+
+        .modal-content h3 {
+            color: #1e90ff;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Password Requirement Message */
+        #passwordMessage {
+            display: none;
+            color: red;
+            font-size: 14px;
+            text-align: left;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Help Button -->
+    <button class="help-button" onclick="openHelp()">Help</button>
+
+    <div class="form-container">
+        <h2>Registration Form</h2>
+
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Registration form -->
+        <form method="POST" action="{{ url_for('register') }}">
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" required>
+        
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" required minlength="8" onkeyup="checkPassword()">
+            <div id="passwordMessage">
+                <ul>
+                    <li id="uppercase">At least one uppercase letter</li>
+                    <li id="lowercase">At least one lowercase letter</li>
+                    <li id="number">At least one number</li>
+                    <li id="special">At least one special character</li>
+                    <li id="minimum">Minimum 8 characters</li>
+                </ul>
+            </div>
+        
+            <label for="confirm_password">Confirm Password:</label>
+            <input type="password" name="confirm_password" id="confirm_password" required minlength="8">
+        
+            <label for="phone_number">Phone Number:</label>
+            <input type="tel" name="phone_number" id="phone_number" required pattern="\d{10}">
+        
+            <label for="age">Age:</label>
+            <input type="number" name="age" id="age" required min="18">
+        
+            <label for="gender">Gender:</label>
+            <select name="gender" id="gender" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+        
+            <label for="security_question">Security Question:</label>
+            <select id="security_question" name="security_question" required>
+                <option value="" disabled selected>Select your security question</option>
+                <option value="pet_name">What is your pet's name?</option>
+                <option value="favorite_color">What is your favorite color?</option>
+                <option value="hobby">What is your hobby?</option>
+            </select>
+        
+            <label for="security_answer">Answer:</label>
+            <input type="text" id="security_answer" name="security_answer" required>
+        
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="help-modal" id="helpModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeHelp()">&times;</span>
+            <h3>Registration Page Help</h3>
+            <p>This form allows you to register an account by providing the required information. Please fill out each field, including email, password, phone number, age, gender, and a security question for account recovery.</p>
+            <p>After submitting the form, you'll proceed to the next phases in securing your account. </p>
+        </div>
+    </div>
+
+    <script>
+        function openHelp() {
+            document.getElementById('helpModal').style.display = 'flex';
+        }
+
+        function closeHelp() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+
+        // Check password requirements
+        function checkPassword() {
+            const password = document.getElementById('password').value;
+            const uppercase = /[A-Z]/.test(password);
+            const lowercase = /[a-z]/.test(password);
+            const number = /\d/.test(password);
+            const special = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+            document.getElementById('uppercase').style.color = uppercase ? 'green' : 'red';
+            document.getElementById('lowercase').style.color = lowercase ? 'green' : 'red';
+            document.getElementById('number').style.color = number ? 'green' : 'red';
+            document.getElementById('special').style.color = special ? 'green' : 'red';
+
+            // Show password message if criteria not met
+            if (!uppercase || !lowercase || !number || !special) {
+                document.getElementById('passwordMessage').style.display = 'block';
+            } else {
+                document.getElementById('passwordMessage').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
